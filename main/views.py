@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpResponse
-from playwright.sync_api import sync_playwright
+from django.conf import settings
 import io
 
 from .models import Convert_blank, Distination
@@ -61,24 +61,26 @@ def generate_card(request, convert_id):
     
     html_content = render(request, "card.html", {"convert": convert}).content.decode("utf-8")
     
-    with sync_playwright() as p:
-        browser = p.chromium.launch()
-        page = browser.new_page()
-        page.set_content(html_content)
+    try:
+        # Import WeasyPrint only when needed to avoid import errors in development
+        from weasyprint import HTML
         
-        # Get the card element dimensions
-        card = page.locator('.invite-card')
-        box = card.bounding_box()
-        
-        # Screenshot the card element
-        screenshot = card.screenshot(type='png')
-        
-        browser.close()
-    
-    response = HttpResponse(screenshot, content_type='image/png')
-    response['Content-Disposition'] = f'attachment; filename="convert_{convert.name}.png"'
-    
-    return response
+        # Use WeasyPrint for both development and production
+        html = HTML(string=html_content)
+        png_bytes = html.write_png()
+        response = HttpResponse(png_bytes, content_type='image/png')
+        response['Content-Disposition'] = f'attachment; filename="convert_{convert.name}.png"'
+        return response
+    except Exception as e:
+        # Fallback for development when WeasyPrint is not available (e.g., Windows without GTK)
+        if settings.DEBUG:
+            return HttpResponse(
+                f"Card generation not available in development. Error: {str(e)}<br>"
+                f"Please deploy to PythonAnywhere to test card generation.",
+                content_type='text/html'
+            )
+        else:
+            raise
 
 
 def view_card(request, convert_id):
