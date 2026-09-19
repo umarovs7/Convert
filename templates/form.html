@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Uchrashuvni rejalashtiramiz</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Playfair+Display:wght@500;700&family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #1a0f16;
+            --card: #3a2430;
+            --gold: #e8c4b8;
+            --blush: #f3d6cf;
+        }
+
+        body {
+            min-height: 100vh;
+            background:
+                radial-gradient(circle at 20% 20%, #4a2233 0%, transparent 42%),
+                radial-gradient(circle at 85% 80%, #2c1630 0%, transparent 45%),
+                var(--bg);
+            font-family: "Poppins", sans-serif;
+            color: var(--blush);
+        }
+
+        .page-wrap {
+            min-height: 100vh;
+            align-items: safe center;
+        }
+
+        .invite-card {
+            width: min(560px, 94vw);
+            background: linear-gradient(180deg, #4a2d3a 0%, var(--card) 100%);
+            border: 1px solid rgba(232, 196, 184, 0.18);
+            border-radius: 28px;
+            box-shadow:
+                0 30px 80px rgba(0, 0, 0, 0.45),
+                inset 0 1px 0 rgba(255, 255, 255, 0.08);
+            padding: 2.4rem 2rem 2rem;
+        }
+
+        .script {
+            font-family: "Great Vibes", cursive;
+            font-size: 2.5rem;
+            color: #fff4ee;
+            line-height: 1.1;
+        }
+
+        .title {
+            font-family: "Playfair Display", serif;
+            font-size: 1.7rem;
+            color: #fff8f4;
+        }
+
+        .subtitle {
+            color: var(--gold);
+            font-size: 0.98rem;
+            line-height: 1.7;
+        }
+
+        .form-label {
+            color: #f3d6cf;
+            font-size: 0.86rem;
+            font-weight: 500;
+            margin-bottom: 0.4rem;
+        }
+
+        .romantic-input,
+        .romantic-input:focus {
+            background: rgba(255, 244, 238, 0.08);
+            border: 1px solid rgba(232, 196, 184, 0.28);
+            color: #fff8f4;
+            border-radius: 14px;
+            min-height: 52px;
+            font-size: 16px;
+            box-shadow: none;
+        }
+
+        .romantic-input::placeholder {
+            color: rgba(243, 214, 207, 0.55);
+        }
+
+        .romantic-input option {
+            color: #1a0f16;
+        }
+
+        .btn-submit {
+            background: linear-gradient(135deg, #e8a09a, #c45c6a);
+            border: none;
+            color: #fff;
+            font-weight: 600;
+            min-height: 52px;
+            border-radius: 999px;
+            box-shadow: 0 10px 24px rgba(196, 92, 106, 0.35);
+        }
+
+        .btn-submit:hover {
+            color: #fff;
+        }
+
+        .alert-soft {
+            display: none;
+            background: rgba(232, 160, 154, 0.16);
+            border: 1px solid rgba(232, 160, 154, 0.35);
+            color: #ffe8e4;
+            border-radius: 16px;
+            padding: 0.9rem 1rem;
+            font-size: 0.92rem;
+        }
+
+        .alert-soft.show {
+            display: block;
+        }
+
+        @media (max-width: 576px) {
+            .invite-card {
+                padding: 1.7rem 1.15rem 1.4rem;
+            }
+
+            .title {
+                font-size: 1.4rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="page-wrap d-flex align-items-center justify-content-center p-3">
+        <div class="invite-card">
+            <div class="text-center mb-4">
+                <div class="script mb-1">Convert</div>
+                <h1 class="title mb-2">Kechamizni yozamiz</h1>
+                <p class="subtitle mb-0">Ism, kun, vaqt va joyni tanlang — qolganini yurak hal qiladi.</p>
+            </div>
+
+            <div class="alert-soft mb-3" id="formAlert" role="alert"></div>
+
+            <form action="{% url 'form' %}" method="post" id="dateForm" novalidate>
+                {% csrf_token %}
+                <div class="mb-3">
+                    <label class="form-label" for="name">Ismingiz</label>
+                    <input class="form-control romantic-input" type="text" id="name" name="name" value="{{ name|default:'' }}" placeholder="Masalan, Mavluda" autocomplete="name">
+                </div>
+                <div class="row g-3">
+                    <div class="col-12 col-sm-6">
+                        <label class="form-label" for="date_day">Kun</label>
+                        <input class="form-control romantic-input" type="date" id="date_day" name="date_day" value="{{ date_day|default:'' }}">
+                    </div>
+                    <div class="col-12 col-sm-6">
+                        <label class="form-label" for="date_time">Vaqt</label>
+                        <input class="form-control romantic-input" type="time" id="date_time" name="date_time" value="{{ date_time|default:'' }}">
+                    </div>
+                </div>
+                <div class="mt-3 mb-4">
+                    <label class="form-label" for="distination">Qayerga?</label>
+                    <select class="form-select romantic-input" id="distination" name="distination">
+                        <option value="">Joyni tanlang</option>
+                        {% for distination in distinations %}
+                            <option value="{{ distination.id }}" {% if distination_id|default:''|stringformat:"s" == distination.id|stringformat:"s" %}selected{% endif %}>{{ distination.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <button class="btn btn-submit w-100" type="submit">Yuborish</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const form = document.getElementById("dateForm");
+        const alertBox = document.getElementById("formAlert");
+
+        const messages = {
+            name: "Ismingizni yozing — bu kecha sizning nomingiz bilan boshlanadi.",
+            date_day: "Kunni tanlang, iltimos. Qachon uchrashamiz?",
+            date_time: "Vaqtni belgilang. Yulduzlar ham soat kutadi.",
+            distination: "Qayerga boramiz? Joy tanlanmasa, yo‘l ochilmaydi.",
+            all: "Yurak shoshmasin — barcha maydonlarni to‘ldiring."
+        };
+
+        function showAlert(text) {
+            alertBox.textContent = text;
+            alertBox.classList.add("show");
+            alertBox.scrollIntoView({ behavior: "smooth", block: "center" });
+        }
+
+        form.addEventListener("submit", function (event) {
+            const name = document.getElementById("name").value.trim();
+            const dateDay = document.getElementById("date_day").value;
+            const dateTime = document.getElementById("date_time").value;
+            const distination = document.getElementById("distination").value;
+
+            const empty = [];
+            if (!name) empty.push("name");
+            if (!dateDay) empty.push("date_day");
+            if (!dateTime) empty.push("date_time");
+            if (!distination) empty.push("distination");
+
+            if (empty.length) {
+                event.preventDefault();
+                if (empty.length > 1) {
+                    showAlert(messages.all);
+                } else {
+                    showAlert(messages[empty[0]]);
+                }
+            }
+        });
+    </script>
+</body>
+</html>
