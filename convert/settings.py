@@ -24,9 +24,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-b3do3x(t58yp(m+h0vl=#twl3vcd9cc-==der%wp=_a$*-b7@6')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = ['loveconvert.pythonanywhere.com']
 
 
 # Application definition
